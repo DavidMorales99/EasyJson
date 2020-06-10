@@ -3,50 +3,37 @@ import json
 import copy
 
 
-
-class Utilize_file():
+class easyjson():
     
-    Skeleton = {}
-    Skeleton["catalog"] = {}    
     
-    def __init__(self,File):
-        self.File = File
+    def __init__(self, file , memory): #memory is dictionary you put in to access the memory during runtime without keeping the file open
+        self.file = file
+        self.memory = memory
         self.check()
-    #################################
-    
-    def check(self): #checks if the file in question exist and if it does but is empty writes a empty dictionary to it to avoid errors
-        if not os.path.isfile(self.File): #check if file exist if it doesn't make a new one with empty dictionary
-            self.write_file() 
-            pass
-        elif not os.path.getsize(self.File): #check if it's empty if it is then write empty dictionary to it
-            self.write_file()
-            pass
-        else:
-            self.load_file()
-    
-    ##################################  
-    
-    def load_file(self):
-        with open(self.File, "r") as i_stream:
-            temp = json.load(i_stream)
-            self.Skeleton = copy.deepcopy(temp) #deepcopy actually copies the object where as copy just makes a reference to whatever
-            print(self.Skeleton)
-            
-    ##################################
-    
-    def write_file(self):
-        with open(self.File, "w") as f_stream:
-            json.dump(self.Skeleton, f_stream)
-            
-    ###################################        
-            
-    def new_entry(self):
-        clear()
-        key = input("Please enter the key\n")
-        val = input("Please enter the value\n")
-        print("enter ^done after submitting an entry to exit")
-        self.Skeleton["catalog"].update({key : val})
-        self.write_file()
         
-    ####################################
+    def check(self): #checks if the specified file exist and if it doesn't or is empty writes a structure into it and if memory is a dict
+        if not os.path.isfile(self.file):
+            self.write()
+        elif os.path.getsize(self.file) == 0:
+            self.write()
+        else:
+            self.read()
+        
+    def write(self): #writes to the json file
+        with open(self.file, "w") as f_stream:
+            json.dump(self.memory, f_stream)
     
+    def read(self): #takes a copy of the json file into the memory so you don't have to keep reading the json file
+        with open(self.file, "r") as  i_stream:
+            temp = json.load(i_stream)
+            memory = copy.deepcopy(temp)
+            
+            
+    def new_entry(self, directory, key, value): # set directory to None if you don't want it to be like key : {key : value } in the json file
+        if not directory:
+            self.memory.update({key : value})
+            self.write()
+        else:
+            self.memory[directory].update({key : value})
+            print(self.memory)
+            self.write()
